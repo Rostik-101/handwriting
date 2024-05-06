@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="" id="registerForm">
+      <label for="regEmail">Register</label>
+      <div>
+        <input type="text" placeholder="Enter email" id="regEmail" />
+        <input type="password" placeholder="Enter password" id="regPass" />
+        <div id="regMessage"></div>
+        <button type="submit">Register</button>
+      </div>
+    </form>
+
+    <br /><br /><br />
+
+    <form action="" id="loginForm">
+      <label for="logEmail">Login</label>
+      <div>
+        <input type="text" placeholder="Enter email" id="logEmail" />
+        <input type="password" placeholder="Enter password" id="logPass" />
+        <div id="logMessage"></div>
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </body>
+
+  <script>
+    let timeRegistration, timeLogin;
+    const regEmail = document.getElementById("regEmail");
+    const regPass = document.getElementById("regPass");
+
+    const logEmail = document.getElementById("logEmail");
+    const logPass = document.getElementById("logPass");
+
+    var errors = 0;
+
+    const calculateErrors = (inputValue) => {
+      let expectedText = regEmail.value;
+      const minLength = Math.min(inputValue.length, expectedText.length);
+      let errorCount = 0;
+      for (let i = 0; i < minLength; i++) {
+        if (inputValue[i].toLowerCase() !== expectedText[i].toLowerCase()) {
+          errorCount++;
+        }
+        errors = errorCount + errors;
+      }
+    };
+    document
+      .getElementById("registerForm")
+      .addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const totalTimeEmail =
+          endRegTimeEmail.reduce(
+            (previousValue, currentValue) => currentValue + previousValue
+          ) / 1000;
+        const totalTimePass =
+          endRegTimePass.reduce(
+            (previousValue, currentValue) => currentValue + previousValue
+          ) / 1000;
+
+        const regMessage = document.getElementById("regMessage");
+        timeRegistration =
+          (totalTimeEmail + totalTimePass) /
+          (regEmail.value.length + regPass.value.length);
+        regMessage.textContent = `${timeRegistration.toFixed(
+          3
+        )} Швидкість введення с/літеру`;
+      });
+
+    document.getElementById("loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (
+        regEmail.value === logEmail.value &&
+        regPass.value === logPass.value
+      ) {
+        const totalTimeEmail =
+          endLogTimeEmail.reduce(
+            (previousValue, currentValue) => currentValue + previousValue
+          ) / 1000;
+        const totalTimePass =
+          endLogTimePass.reduce(
+            (previousValue, currentValue) => currentValue + previousValue
+          ) / 1000;
+
+        const logMessage = document.getElementById("logMessage");
+        timeLogin =
+          (totalTimeEmail + totalTimePass) /
+          (logEmail.value.length + logPass.value.length);
+
+        const rangeReg = errorPercent(timeRegistration, 10);
+
+        if (timeLogin >= rangeReg.from && timeLogin <= rangeReg.to) {
+          alert("Почерк співпада");
+        } else {
+          alert("Почерк НЕспівпада");
+          if (timeLogin > timeRegistration) {
+            alert(
+              `Залогінився повільніше в ${(
+                timeLogin / timeRegistration
+              ).toFixed(1)}`
+            );
+          } else {
+            alert(
+              `Залогінився швидше в ${(timeRegistration / timeLogin).toFixed(
+                1
+              )}`
+            );
+          }
+        }
+
+        logMessage.textContent = `${timeLogin.toFixed(
+          3
+        )} Швидкість введення с/літеру. Всього при вводі помилок: ${errors}`;
+      } else {
+        alert("Акаунт відсутній або невірний пароль");
+      }
+    });
+
+    function errorPercent(value, percent) {
+      const num = (value * percent) / 100;
+      return {
+        from: value - num,
+        to: value + num,
+      };
+    }
+
+    /// Registration ///
+    var startRegTimeEmail, startRegTimePass;
+    var endRegTimeEmail = [],
+      endRegTimePass = [];
+
+    function handleFocusEmailReg(variable) {
+      startRegTimeEmail = Date.now();
+    }
+    regEmail.addEventListener("focus", handleFocusEmailReg);
+
+    function handleFocusPassReg(variable) {
+      startRegTimePass = Date.now();
+    }
+    regPass.addEventListener("focus", handleFocusPassReg);
+
+    function handleBlurEmailReg() {
+      endRegTimeEmail.push(Date.now() - startRegTimeEmail);
+    }
+    regEmail.addEventListener("blur", handleBlurEmailReg);
+
+    function handleBlurPassReg() {
+      endRegTimePass.push(Date.now() - startRegTimePass);
+    }
+    regPass.addEventListener("blur", handleBlurPassReg);
+
+    ///// Login ///
+    var startLogTimeEmail, startLogTimePass;
+    var endLogTimeEmail = [],
+      endLogTimePass = [];
+
+    function handleFocusEmailLog(variable) {
+      startLogTimeEmail = Date.now();
+    }
+    logEmail.addEventListener("focus", handleFocusEmailLog);
+
+    function handleFocusPassLog(variable) {
+      startLogTimePass = Date.now();
+    }
+    logPass.addEventListener("focus", handleFocusPassLog);
+
+    function handleBlurEmailLog() {
+      endLogTimeEmail.push(Date.now() - startLogTimeEmail);
+    }
+    logEmail.addEventListener("blur", handleBlurEmailLog);
+
+    function handleBlurPassLog() {
+      endLogTimePass.push(Date.now() - startLogTimePass);
+    }
+    logPass.addEventListener("blur", handleBlurPassLog);
+
+    logEmail.addEventListener("input", (e) => {
+      calculateErrors(e.target.value);
+    });
+  </script>
+</html>
